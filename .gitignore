@@ -1,0 +1,6 @@
+node_modules/
+.env
+.DS_Store
+test-request.js
+test-request-2.js
+*.png
