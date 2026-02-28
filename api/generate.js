@@ -5,7 +5,13 @@ module.exports = async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+        console.error("ERROR: GEMINI_API_KEY environment variable is absolutely missing.");
+        return res.status(500).json({ error: "Server missing API key configuration." });
+    }
+
+    const ai = new GoogleGenAI({ apiKey: apiKey });
 
     const { productDetails, imageBase64 } = req.body;
     
