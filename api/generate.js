@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+import { GoogleGenAI } from '@google/genai';
 
 export const config = {
     api: {
@@ -13,9 +13,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const openai = new OpenAI({
-        apiKey: process.env.OPENAI_API_KEY
-    });
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     const { productDetails, imageBase64 } = req.body;
     
@@ -63,22 +61,28 @@ export default async function handler(req, res) {
         "${productDetails || 'No text provided. Analyze the image.'}"
         `;
 
-        let messageContent = [];
-        messageContent.push({ type: "text", text: promptText });
+        let contents = [];
+        contents.push({ role: 'user', parts: [{ text: promptText }] });
 
         if (imageBase64) {
-            messageContent.push({ type: "image_url", image_url: { url: imageBase64 } });
+            // Remove the data:image/png;base64, prefix for Gemini
+            const base64Data = imageBase64.split(',')[1];
+            const mimeType = imageBase64.substring(imageBase64.indexOf(':') + 1, imageBase64.indexOf(';'));
+            
+            contents[0].parts.push({
+                inlineData: {
+                    data: base64Data,
+                    mimeType: mimeType
+                }
+            });
         }
 
-        const response = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            messages: [
-                { role: "system", content: "You are an elite e-commerce conversion copywriter." },
-                { role: "user", content: messageContent }
-            ]
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: contents,
         });
 
-        res.status(200).json({ result: response.choices[0].message.content });
+        res.status(200).json({ result: response.text });
     } catch (error) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message || 'Failed to generate copy' });
