@@ -1,6 +1,5 @@
-const OpenAI = require('openai');
+import OpenAI from 'openai';
 
-// Configure Vercel serverless function to handle larger payloads
 export const config = {
     api: {
         bodyParser: {
@@ -14,7 +13,6 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    // Initialize OpenAI INSIDE the handler to ensure it grabs the env var at runtime
     const openai = new OpenAI({
         apiKey: process.env.OPENAI_API_KEY
     });
