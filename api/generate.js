@@ -1,9 +1,5 @@
 const OpenAI = require('openai');
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY
-});
-
 // Configure Vercel serverless function to handle larger payloads
 export const config = {
     api: {
@@ -17,6 +13,11 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
+
+    // Initialize OpenAI INSIDE the handler to ensure it grabs the env var at runtime
+    const openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY
+    });
 
     const { productDetails, imageBase64 } = req.body;
     
