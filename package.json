@@ -17,6 +17,5 @@
     "googleapis": "^171.4.0",
     "marked": "^17.0.3",
     "openai": "^6.25.0"
-  },
-  "type": "module"
+  }
 }
