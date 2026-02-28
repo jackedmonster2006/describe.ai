@@ -1,14 +1,6 @@
-import { GoogleGenAI } from '@google/genai';
+const { GoogleGenAI } = require('@google/genai');
 
-export const config = {
-    api: {
-        bodyParser: {
-            sizeLimit: '10mb',
-        },
-    },
-};
-
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
@@ -65,7 +57,6 @@ export default async function handler(req, res) {
         contents.push({ role: 'user', parts: [{ text: promptText }] });
 
         if (imageBase64) {
-            // Remove the data:image/png;base64, prefix for Gemini
             const base64Data = imageBase64.split(',')[1];
             const mimeType = imageBase64.substring(imageBase64.indexOf(':') + 1, imageBase64.indexOf(';'));
             
@@ -87,4 +78,12 @@ export default async function handler(req, res) {
         console.error('Error:', error);
         res.status(500).json({ error: error.message || 'Failed to generate copy' });
     }
-}
+};
+
+module.exports.config = {
+    api: {
+        bodyParser: {
+            sizeLimit: '10mb',
+        },
+    },
+};
